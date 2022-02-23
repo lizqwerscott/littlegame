@@ -1,0 +1,32 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+</head>
+
+<body>
+    <div id="test-vue">
+        <p>用户名:<input type="text" id="uName" value="1001"></p>
+        <p>密码:<input type="text" id="pwd" value="123"></p>
+        <input type="button" value="登陆" onclick="javascrtpt:jump();">
+    </div>
+    <script>
+        var uName = localStorage.getItem("uName");
+        var pwd = localStorage.getItem("pwd");
+        document.getElementById('uName').value = uName;
+        document.getElementById('pwd').value = pwd;
+
+        function jump() {
+            var un = document.getElementById('uName').value;
+            var pwd = document.getElementById('pwd').value;
+            localStorage.setItem("uName", un);
+            localStorage.setItem("pwd", pwd);
+            window.location.href = "index.html?uName=" + un + "&pwd=" + pwd;
+        }
+    </script>
+
+</body>
+
+</html>

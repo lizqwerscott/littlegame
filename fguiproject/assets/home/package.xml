@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<packageDescription id="7nq8rujo">
+  <resources>
+    <component id="ftly0" name="Home.xml" path="/" exported="true"/>
+    <component id="ebd71" name="DebugBtn.xml" path="/"/>
+  </resources>
+  <publish name=""/>
+</packageDescription>

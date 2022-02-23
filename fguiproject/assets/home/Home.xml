@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="750,1334">
+  <displayList>
+    <component id="n0_ebd7" name="n0" src="ebd71" fileName="DebugBtn.xml" xy="285,413" size="180,60">
+      <relation target="" sidePair="center-center,middle-middle"/>
+      <Button title="开始游戏"/>
+    </component>
+    <graph id="n2_ebd7" name="n2" xy="0,0" size="100,100" type="rect"/>
+    <graph id="n3_ebd7" name="n3" xy="0,1234" size="100,100" type="rect">
+      <relation target="" sidePair="bottom-bottom"/>
+    </graph>
+    <graph id="n4_ebd7" name="n4" xy="650,1234" size="100,100" type="rect">
+      <relation target="" sidePair="right-right,bottom-bottom"/>
+    </graph>
+    <graph id="n5_ebd7" name="n5" xy="650,0" size="100,100" type="rect">
+      <relation target="" sidePair="right-right"/>
+    </graph>
+  </displayList>
+</component>
