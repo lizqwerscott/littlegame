@@ -201,7 +201,7 @@
             var collider = this.physics.add.collider(this.player, this.platforms);
             collider.collideCallback = this.collectGround;
             if (ismobile()) {
-                let left = this.add.image(width / 4, height - 100, 'left');
+                let left = this.add.image(width / 4, height - 100, 'left').setScale(2).setAlpha(0.3);
                 left.setInteractive();
                 left.on('pointerdown', (pointer) => {
                     this.swipeDirection = 'left';
@@ -209,7 +209,7 @@
                 left.on('pointerup', (pointer) => {
                     this.swipeDirection = 'turn';
                 });
-                let right = this.add.image(width * 3 / 4, height - 100, 'right');
+                let right = this.add.image(width * 3 / 4, height - 100, 'right').setScale(2).setAlpha(0.3);
                 right.setInteractive();
                 right.on('pointerdown', (pointer) => {
                     this.swipeDirection = 'right';
