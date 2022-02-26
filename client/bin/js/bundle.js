@@ -2,8 +2,8 @@
     'use strict';
 
     var score = 0;
-    const width = 800;
-    const height = 1200;
+    const width = 900;
+    const height = 1600;
     function ismobile() {
         var browser = {
             versions: function () {
@@ -39,6 +39,38 @@
             canvas.style.height = windowHeight + 'px';
         }
     }
+    function randomNumber(count = 1, min = 1, max = 10, scope = 2) {
+        var numArray = new Array();
+        var temp = 0;
+        var rightp = true;
+        var isrepeat = true;
+        for (let i = 0; i < count; i++) {
+            do {
+                temp = Math.floor(Math.random() * (max - min + 1) + min);
+                isrepeat = numArray.includes(temp);
+                if (isrepeat) {
+                    rightp = true;
+                }
+                else {
+                    if (scope <= 0) {
+                        rightp = false;
+                    }
+                    else {
+                        var iscan = false;
+                        for (let j = 0; j < numArray.length; j++) {
+                            if (Math.abs(numArray.at(j) - temp) < scope) {
+                                iscan = true;
+                                break;
+                            }
+                        }
+                        rightp = iscan;
+                    }
+                }
+            } while (rightp);
+            numArray.push(temp);
+        }
+        return numArray;
+    }
     class Main {
         constructor() {
             this._startGame();
@@ -69,19 +101,28 @@
                 key: "StartScene"
             });
         }
+        init() {
+            for (let i = 0; i < 100; i++) {
+                let array = randomNumber(3, 1, 10, 2);
+            }
+        }
         preload() {
             this.load.image('start', 'assets/start.png');
+            this.load.image('sky', 'assets/sky.png');
         }
         create() {
-            this.add.text(width / 3, height / 2 - 100, "Go to the Top", {
-                fontSize: '30px',
-                color: '#ff0000'
+            this.add.image(width / 2, height / 4, 'sky').setScale(2);
+            this.add.image(width / 2, height * 3 / 4, 'sky').setScale(2);
+            this.add.text(width / 2 - 50, height / 4, "Up", {
+                fontSize: '100px',
+                color: '#ff0000',
+                align: 'center'
             });
             let start = this.add.image(width / 2, height / 2, 'start');
             start.setInteractive();
             start.on('pointerdown', (pointer) => {
-                this.scene.stop();
-                this.scene.run('HomeScene');
+                this.scene.stop('StartScene');
+                this.scene.start('HomeScene');
             });
         }
     }
@@ -95,26 +136,23 @@
         }
         preload() {
             this.load.image("restart", 'assets/restart.png');
+            this.load.image('sky', 'assets/sky.png');
         }
         create() {
-            console.log("width: " + width);
-            console.log("height: " + height);
-            this.add.text(width / 3, height / 2, "You are Wasted!", {
-                fontSize: "30px",
-                color: "#ff0000"
+            this.add.image(width / 2, height / 4, 'sky').setScale(2);
+            this.add.image(width / 2, height * 3 / 4, 'sky').setScale(2);
+            this.add.text(width / 2 - 50 * 3 - 50, height / 4, "Wasted!\n" + "You score: " + score, {
+                fontSize: "50px",
+                color: "#ff0000",
+                align: "center"
             });
-            this.add.text(width / 3, height / 2 + 50, "You score: " + score, {
-                fontSize: "30px",
-                color: "#ff0000"
-            });
-            let restart = this.add.image(width / 2, height / 2 + 200, 'restart');
+            let restart = this.add.image(width / 2, height / 2, 'restart');
             restart.setInteractive();
-            restart.on('pointerdown', (pointer) => {
-                this.scene.stop();
-                this.scene.run('HomeScene');
+            restart.setScale(2);
+            restart.on('pointerup', (pointer) => {
+                this.scene.stop('FinishScene');
+                this.scene.start('HomeScene');
             });
-        }
-        update() {
         }
     }
     class HomeScene extends Phaser.Scene {
@@ -151,6 +189,9 @@
             this.groundIndex = 0;
             this.isDead = false;
             this.swipeDirection = 'turn';
+            this.generateHeight = 10;
+            this.generateTime = 0;
+            this.groundDownSpeed = 0.5;
             score = 0;
         }
         preload() {
@@ -163,13 +204,15 @@
             this.load.image('right', 'assets/right.png');
         }
         create() {
-            this.add.image(width / 2, height / 4, 'sky');
-            this.add.image(width / 2, height * 3 / 4, 'sky');
-            this.showScore = this.add.text(0, 0, "score: " + score);
+            this.add.image(width / 2, height / 4, 'sky').setScale(2);
+            this.add.image(width / 2, height * 3 / 4, 'sky').setScale(2);
+            this.showScore = this.add.text(0, 0, "score: " + score).setScale(3);
             this.platforms = this.physics.add.staticGroup();
-            this.platforms.create(width / 2, height - 32, 'stonep').setName("groundStone0");
-            for (let i = 40; i < height - 52; i = i + 80) {
-                this.autoGenerateGround(i);
+            this.platforms.create(width / 2, height - 32, 'stonep').setName("groundStone-2");
+            this.platforms.create(width / 4 + 90, height - 180, 'stonep').setName("groundStone-1");
+            this.platforms.create(width * 3 / 4 - 90, height - 180, 'stonep').setName("groundStone0");
+            for (let i = 40; i < height - 200; i = i + 80) {
+                this.autoGenerateGround(i, 0);
             }
             this.player = this.physics.add.sprite(width / 2, height - 100, 'dude');
             this.player.setBounce(0.2);
@@ -201,7 +244,7 @@
             var collider = this.physics.add.collider(this.player, this.platforms);
             collider.collideCallback = this.collectGround;
             if (ismobile()) {
-                let left = this.add.image(width / 4, height - 100, 'left').setScale(2).setAlpha(0.3);
+                let left = this.add.image(width / 4, height - 100, 'left').setScale(3).setAlpha(0.3);
                 left.setInteractive();
                 left.on('pointerdown', (pointer) => {
                     this.swipeDirection = 'left';
@@ -209,7 +252,7 @@
                 left.on('pointerup', (pointer) => {
                     this.swipeDirection = 'turn';
                 });
-                let right = this.add.image(width * 3 / 4, height - 100, 'right').setScale(2).setAlpha(0.3);
+                let right = this.add.image(width * 3 / 4, height - 100, 'right').setScale(3).setAlpha(0.3);
                 right.setInteractive();
                 right.on('pointerdown', (pointer) => {
                     this.swipeDirection = 'right';
@@ -236,31 +279,49 @@
             if (this.player.body.touching.down) {
                 this.player.setVelocityY(-330);
                 score += 80;
-                this.platforms.incY(100);
-                this.autoGenerateGround(25);
-                this.platforms.refresh();
+                this.groundDownSpeed += 0.01;
+            }
+            this.platforms.incY(this.groundDownSpeed);
+            this.platforms.refresh();
+            this.generateTime += Math.ceil(this.groundDownSpeed - 0.5);
+            if (this.generateTime >= ((80 + 30) / this.groundDownSpeed)) {
+                this.autoGenerateGround(-10, 0);
+                this.generateTime = 0;
             }
             if (this.player.y > height + 5) {
                 this.isDead = true;
             }
             if (this.isDead) {
-                this.scene.stop();
-                this.scene.run("FinishScene");
+                this.scene.stop('HomeScene');
+                this.scene.start('FinishScene');
             }
             this.platforms.children.each((ground) => {
                 if (ground.body.position.y > height + 5) {
-                    console.log("deleteGround: ", ground.name);
+                    this.platforms.kill(ground);
                     this.platforms.remove(ground);
+                    this.platforms.refresh();
                 }
             });
             this.showScore.text = "score: " + score;
         }
-        randomX() {
-            return Math.random() * width - 50 + 20;
+        randomX(min = -44, max = 44) {
+            return Math.random() * (max - min + 1) + min;
         }
-        autoGenerateGround(y) {
-            this.platforms.create(this.randomX(), y, 'stonep').setName("stoneGround" + this.groundIndex);
-            this.groundIndex++;
+        autoGenerateGround(y, count = 1) {
+            const lineNum = Math.floor(width / 90);
+            if (count == 0) {
+                count = Math.floor(Math.random() * 3 + 1);
+            }
+            if ((Math.floor(Math.random() * 50 + 25)) == 27) {
+                count = 0;
+            }
+            if (count != 0) {
+                let numArray = randomNumber(count, 1, lineNum, 3);
+                for (let i = 0; i < count; i++) {
+                    this.platforms.create(numArray.at(i) * 90 - 45 + this.randomX(), y, 'stonep').setName("stoneGround" + this.groundIndex);
+                    this.groundIndex++;
+                }
+            }
         }
         collectGround(object1, object2) {
         }

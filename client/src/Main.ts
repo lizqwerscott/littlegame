@@ -1,8 +1,9 @@
-import {fork} from "child_process";
+import { fork } from "child_process";
+import {start} from "repl";
 
 var score = 0;
-const width = 800;
-const height = 1200;
+const width = 900;
+const height = 1600;
 
 function ismobile() {
     var browser = {
@@ -19,9 +20,9 @@ function ismobile() {
                 iPhone: u.indexOf('iPhone') > -1, //是否为iPhone或者QQHD浏览器
                 iPad: u.indexOf('iPad') > -1, //是否iPad
                 webApp: u.indexOf('Safari') == -1 //是否web应该程序，没有头部与底部
-                };
-            } (),
-        };
+            };
+        }(),
+    };
     return browser.versions.mobile
 }
 
@@ -42,35 +43,69 @@ function resize() {
 
 }
 
+function randomNumber(count: number = 1, min: number = 1, max: number = 10, scope: number = 2) {
+    var numArray: number[] = new Array<number>();
+    var temp: number = 0;
+    var rightp: boolean = true;
+    var isrepeat: boolean = true;
+
+    for (let i = 0; i < count; i++) {
+        do {
+            temp = Math.floor(Math.random() * (max - min + 1) + min);
+            isrepeat = numArray.includes(temp);
+            if (isrepeat) {
+                rightp = true;
+            } else {
+                if (scope <= 0) {
+                    rightp = false;
+                } else {
+                    var iscan: boolean = false;
+                    for (let j = 0; j < numArray.length; j++) {
+                        if (Math.abs(numArray.at(j) - temp) < scope) {
+                            iscan = true;
+                            break;
+                        }
+                    }
+                    rightp = iscan;
+                }
+
+            }
+        } while (rightp)
+        numArray.push(temp);
+    }
+    return numArray;
+
+}
+
 class Main {
 
 
-	constructor() {
-		
-		// 这里是游戏具体代码
-		this._startGame()
-	}
-	private _startGame() {
-		let config = {
-			type: Phaser.AUTO,
-			width: width,
-			height: height,
-			physics: {
-				default: 'arcade',
-				arcade: {
-					gravity: { y: 300 },
-                    debug: false
-				}
-			},
-			scene: [StartScene, HomeScene, FinishScene]
-		}
+    constructor() {
 
-		var game = new Phaser.Game(config);
+        // 这里是游戏具体代码
+        this._startGame()
+    }
+    private _startGame() {
+        let config = {
+            type: Phaser.AUTO,
+            width: width,
+            height: height,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 300 },
+                    debug: false
+                }
+            },
+            scene: [StartScene, HomeScene, FinishScene]
+        }
+
+        var game = new Phaser.Game(config);
 
         window.focus();
         resize();
         window.addEventListener('resize', resize, false);
-	}
+    }
 
 
 }
@@ -81,19 +116,31 @@ class StartScene extends Phaser.Scene {
             key: "StartScene"
         })
     }
+    init() {
+        for (let i = 0; i < 100; i++) {
+            let array = randomNumber(3, 1, 10, 2);
+            //console.log(array);
+        }
+    }
     preload() {
         this.load.image('start', 'assets/start.png');
+        this.load.image('sky', 'assets/sky.png');
     }
     create() {
-        this.add.text(width / 3, height / 2 - 100, "Go to the Top", {
-            fontSize: '30px',
-            color: '#ff0000'
+        this.add.image(width / 2, height / 4, 'sky').setScale(2);
+        this.add.image(width / 2, height * 3 / 4, 'sky').setScale(2);
+
+        this.add.text(width / 2 - 50, height / 4, "Up", {
+            fontSize: '100px',
+            color: '#ff0000',
+            align: 'center'
         });
+
         let start = this.add.image(width / 2, height / 2, 'start');
         start.setInteractive();
         start.on('pointerdown', (pointer) => {
-            this.scene.stop();
-            this.scene.run('HomeScene');
+            this.scene.stop('StartScene');
+            this.scene.start('HomeScene');
         });
     }
 }
@@ -113,42 +160,39 @@ class FinishScene extends Phaser.Scene {
 
     preload() {
         this.load.image("restart", 'assets/restart.png');
-
+        this.load.image('sky', 'assets/sky.png');
     }
 
     create() {
-        console.log("width: " + width);
-        console.log("height: " + height);
+        //console.log("width: " + width);
+        //console.log("height: " + height);
 
-        this.add.text(width / 3, height / 2, "You are Wasted!", {
-            fontSize: "30px",
-            color: "#ff0000"
-        });
-        this.add.text(width / 3, height / 2 + 50, "You score: " + score, {
-            fontSize: "30px",
-            color: "#ff0000"
+        this.add.image(width / 2, height / 4, 'sky').setScale(2);
+        this.add.image(width / 2, height * 3 / 4, 'sky').setScale(2);
+
+        this.add.text(width / 2 - 50 * 3 - 50, height / 4, "Wasted!\n" + "You score: " + score, {
+            fontSize: "50px",
+            color: "#ff0000",
+            align: "center"
         });
 
-        let restart = this.add.image(width / 2, height / 2 + 200, 'restart');
+        let restart = this.add.image(width / 2, height / 2, 'restart');
         restart.setInteractive();
-        restart.on('pointerdown', (pointer) => {
-            this.scene.stop();
-            this.scene.run('HomeScene');
+        restart.setScale(2);
+        restart.on('pointerup', (pointer) => {
+            this.scene.stop('FinishScene');
+            this.scene.start('HomeScene');
         })
-
-    }
-
-    update() {
 
     }
 }
 
-class HomeScene extends Phaser.Scene{
-	constructor(){
-		super({
-			key:'HomeScene'
-		})
-	}
+class HomeScene extends Phaser.Scene {
+    constructor() {
+        super({
+            key: 'HomeScene'
+        })
+    }
 
     platforms: Phaser.Physics.Arcade.StaticGroup;
     //player = Phaser.Physics.Arcade.Sprite;
@@ -162,14 +206,22 @@ class HomeScene extends Phaser.Scene{
 
     swipeDirection: string;
 
-	init(){
+    generateHeight: number;
+    generateTime: number;
+
+    groundDownSpeed: number;
+
+    init() {
         this.groundIndex = 0;
         this.isDead = false;
         this.swipeDirection = 'turn';
+        this.generateHeight = 10;
+        this.generateTime = 0;
+        this.groundDownSpeed = 0.5;
         score = 0;
-	}
-	preload(){
-		//this.load.setBaseURL('http://labs.phaser.io');
+    }
+    preload() {
+        //this.load.setBaseURL('http://labs.phaser.io');
 
         //this.load.image('sky', 'assets/skies/space3.png');
         //this.load.image('logo', 'assets/sprites/phaser3-logo.png');
@@ -180,25 +232,26 @@ class HomeScene extends Phaser.Scene{
         this.load.image('bomb', 'assets/bomb.png');
         this.load.image('stonep', 'assets/stonePlatform.png');
         this.load.spritesheet('dude',
-                             'assets/dude.png',
-                             {frameWidth: 32, frameHeight: 48});
+            'assets/dude.png',
+            { frameWidth: 32, frameHeight: 48 });
 
         this.load.image('left', 'assets/left.png');
         this.load.image('right', 'assets/right.png');
-	}
-	create ()
-    {
-        this.add.image(width / 2, height / 4, 'sky');
-        this.add.image(width / 2, height * 3 / 4, 'sky');
-        this.showScore = this.add.text(0, 0, "score: " + score);
+    }
+    create() {
+        this.add.image(width / 2, height / 4, 'sky').setScale(2);
+        this.add.image(width / 2, height * 3 / 4, 'sky').setScale(2);
+        this.showScore = this.add.text(0, 0, "score: " + score).setScale(3);
         //this.add.image(400, 400, 'star');
 
         this.platforms = this.physics.add.staticGroup();
 
-        this.platforms.create(width / 2, height - 32, 'stonep').setName("groundStone0");
+        this.platforms.create(width / 2, height - 32, 'stonep').setName("groundStone-2");
+        this.platforms.create(width / 4 + 90, height - 180, 'stonep').setName("groundStone-1");
+        this.platforms.create(width * 3 / 4 - 90, height - 180, 'stonep').setName("groundStone0");
 
-        for (let i = 40; i < height - 52; i = i + 80) {
-            this.autoGenerateGround(i);
+        for (let i = 40; i < height - 200; i = i + 80) {
+            this.autoGenerateGround(i, 0);
         }
 
         //var groundMain = this.platforms.create(400, 568, 'ground').setName("ground1");
@@ -216,7 +269,7 @@ class HomeScene extends Phaser.Scene{
             key: 'left',
             frames: this.anims.generateFrameNumbers('dude', {
                 start: 0,
-                end : 3
+                end: 3
             }),
             frameRate: 10,
             repeat: -1
@@ -224,7 +277,7 @@ class HomeScene extends Phaser.Scene{
 
         this.anims.create({
             key: 'turn',
-            frames: [{ key: 'dude', frame: 4}],
+            frames: [{ key: 'dude', frame: 4 }],
             frameRate: 20
         });
 
@@ -243,8 +296,8 @@ class HomeScene extends Phaser.Scene{
         //this.physics.add.overlap(this.player, this.platforms, this.collectGround, null, this);
         //
         //this.input.on('pointerdown', this.handleTouch);
-        if (ismobile())  {
-            let left = this.add.image(width / 4, height - 100, 'left').setScale(2).setAlpha(0.3);
+        if (ismobile()) {
+            let left = this.add.image(width / 4, height - 100, 'left').setScale(3).setAlpha(0.3);
             left.setInteractive();
             left.on('pointerdown', (pointer) => {
                 this.swipeDirection = 'left';
@@ -252,7 +305,7 @@ class HomeScene extends Phaser.Scene{
             left.on('pointerup', (pointer) => {
                 this.swipeDirection = 'turn';
             })
-            let right = this.add.image(width * 3 / 4, height - 100, 'right').setScale(2).setAlpha(0.3);
+            let right = this.add.image(width * 3 / 4, height - 100, 'right').setScale(3).setAlpha(0.3);
             right.setInteractive();
             right.on('pointerdown', (pointer) => {
                 this.swipeDirection = 'right';
@@ -285,27 +338,41 @@ class HomeScene extends Phaser.Scene{
         if (this.player.body.touching.down) {
             this.player.setVelocityY(-330);
             score += 80;
-            this.platforms.incY(100);
-            this.autoGenerateGround(25);
-            this.platforms.refresh();
+            this.groundDownSpeed += 0.01;
         }
 
         //console.log("time: " + time);
         //console.log("delta: " + delta);
+
+        this.platforms.incY(this.groundDownSpeed);
+        this.platforms.refresh();
+
+        this.generateTime += Math.ceil(this.groundDownSpeed - 0.5);
+
+        //console.log("generateTime: " + this.generateTime)
+
+        if (this.generateTime >= ((80 + 30) / this.groundDownSpeed)) {
+            //this.autoGenerateGround(-this.generateHeight, 0);
+            //this.generateHeight += 80;
+            this.autoGenerateGround(-10, 0);
+            this.generateTime = 0;
+        }
 
         if (this.player.y > height + 5) {
             this.isDead = true;
         }
 
         if (this.isDead) {
-            this.scene.stop();
-            this.scene.run("FinishScene");
+            this.scene.stop('HomeScene');
+            this.scene.start('FinishScene');
         }
 
-        this.platforms.children.each((ground : Phaser.GameObjects.GameObject) => {
+        this.platforms.children.each((ground: Phaser.GameObjects.GameObject) => {
             if (ground.body.position.y > height + 5) {
-                console.log("deleteGround: ", ground.name);
+                //console.log("deleteGround: ", ground.name);
+                this.platforms.kill(ground);
                 this.platforms.remove(ground);
+                this.platforms.refresh();
             }
         });
 
@@ -313,13 +380,29 @@ class HomeScene extends Phaser.Scene{
         this.showScore.text = "score: " + score;
     }
 
-    randomX() {
-        return Math.random() * width - 50 + 20
+    randomX(min: number = -44, max: number = 44) {
+        return Math.random() * (max - min + 1) + min;
     }
 
-    autoGenerateGround(y: number) {
-        this.platforms.create(this.randomX(), y, 'stonep').setName("stoneGround" + this.groundIndex);
-        this.groundIndex++;
+    autoGenerateGround(y: number, count: number = 1) {
+        //stone width 90, stone height 30
+        const lineNum: number = Math.floor(width / 90);
+
+        if (count == 0) {
+            count = Math.floor(Math.random() * 3 + 1);
+        }
+
+        if ((Math.floor(Math.random() * 50 + 25)) == 27) {
+            count = 0;
+        }
+
+        if (count != 0) {
+            let numArray = randomNumber(count, 1, lineNum, 3);
+            for (let i = 0; i < count; i++) {
+                this.platforms.create(numArray.at(i) * 90 - 45 + this.randomX(), y, 'stonep').setName("stoneGround" + this.groundIndex);
+                this.groundIndex++;
+            }
+        }
     }
 
     collectGround(object1: Phaser.GameObjects.GameObject, object2: Phaser.GameObjects.GameObject) {
