@@ -1,5 +1,4 @@
 import { fork } from "child_process";
-import {start} from "repl";
 
 var score = 0;
 const width = 900;
