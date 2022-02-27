@@ -6,7 +6,7 @@
     "scripts": {
         "build": "gulp",
         "buildnores": "gulp buildnores",
-        "server": "http-server ./bin -p 8088 -c 5"
+        "server": "http-server ./bin -p 8088"
     },
     "author": "",
     "license": "ISC",
