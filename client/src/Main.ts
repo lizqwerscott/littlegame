@@ -25,6 +25,20 @@ function ismobile() {
     return browser.versions.mobile
 }
 
+function isPC() {
+    var userAgentInfo = navigator.userAgent;
+    var Agents = ['Android', 'iPhone', 'SymbianOS', 'Window Phone', 'iPad', 'iPod'];
+
+    var flag = true;
+    for (let i = 0; i < Agents.length; i++) {
+        if (userAgentInfo.indexOf(Agents[i]) != -1) {
+            flag = false;
+            break;
+        }
+    }
+    return flag;
+}
+
 function resize() {
     var canvas = document.querySelector('canvas');
     var windowWidth = window.innerWidth;
@@ -116,10 +130,6 @@ class StartScene extends Phaser.Scene {
         })
     }
     init() {
-        for (let i = 0; i < 100; i++) {
-            let array = randomNumber(3, 1, 10, 2);
-            //console.log(array);
-        }
     }
     preload() {
         this.load.image('start', 'assets/start.png');
@@ -196,8 +206,7 @@ class HomeScene extends Phaser.Scene {
     platforms: Phaser.Physics.Arcade.StaticGroup;
     //player = Phaser.Physics.Arcade.Sprite;
     isDead: Boolean;
-    player: Phaser.Physics.Arcade.Sprite;
-    showScore: Phaser.GameObjects.Text;
+    player: Phaser.Physics.Arcade.Sprite; showScore: Phaser.GameObjects.Text;
     width: number;
     height: number;
 
@@ -295,7 +304,7 @@ class HomeScene extends Phaser.Scene {
         //this.physics.add.overlap(this.player, this.platforms, this.collectGround, null, this);
         //
         //this.input.on('pointerdown', this.handleTouch);
-        if (ismobile()) {
+        if (!isPC()) {
             let left = this.add.image(width / 4, height - 100, 'left').setScale(3).setAlpha(0.3);
             left.setInteractive();
             left.on('pointerdown', (pointer) => {

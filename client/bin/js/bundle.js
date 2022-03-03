@@ -24,6 +24,18 @@
         };
         return browser.versions.mobile;
     }
+    function isPC() {
+        var userAgentInfo = navigator.userAgent;
+        var Agents = ['Android', 'iPhone', 'SymbianOS', 'Window Phone', 'iPad', 'iPod'];
+        var flag = true;
+        for (let i = 0; i < Agents.length; i++) {
+            if (userAgentInfo.indexOf(Agents[i]) != -1) {
+                flag = false;
+                break;
+            }
+        }
+        return flag;
+    }
     function resize() {
         var canvas = document.querySelector('canvas');
         var windowWidth = window.innerWidth;
@@ -102,9 +114,6 @@
             });
         }
         init() {
-            for (let i = 0; i < 100; i++) {
-                let array = randomNumber(3, 1, 10, 2);
-            }
         }
         preload() {
             this.load.image('start', 'assets/start.png');
@@ -243,7 +252,7 @@
             });
             var collider = this.physics.add.collider(this.player, this.platforms);
             collider.collideCallback = this.collectGround;
-            if (ismobile()) {
+            if (!isPC()) {
                 let left = this.add.image(width / 4, height - 100, 'left').setScale(3).setAlpha(0.3);
                 left.setInteractive();
                 left.on('pointerdown', (pointer) => {
